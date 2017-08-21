@@ -1,0 +1,156 @@
+---
+title: "Montenegro Referendum"
+author: "Simeon Evlakhov"
+date: '21 august 2017 г '
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+  crnaGoraShp <- "data/MNE_adm1.shp"
+  populationCsv <- "data/popis-2003.csv"
+  referendumCsv <- "data/referendum.csv"
+```
+
+```{r, echo=FALSE}
+  library(tmap)
+  library(tmaptools)
+  library(leaflet)
+  library(scales)
+```
+
+```{r, echo=FALSE}
+# Reading Data files
+  population <- read.csv(populationCsv, header = T, sep = ",", as.is = T)
+  referendum <- read.csv(referendumCsv, header = T, sep = ",", as.is = T)
+```
+
+```{r, echo=FALSE}
+  # Creating new features
+  population$MontenegrinsPct <- population$Montenegrins/population$Total
+  population$SerbsPct <- population$Serbs/population$Total
+  population$MuslimsPct <- with(population, (Albanians + Bosniaks + Muslims.by.Nationality)/Total)
+  population$RestPct <- with(population, (Roma + Croats + Rest + Untold + Regional.identity + Unknown)/Total) 
+```
+
+```{r, echo=FALSE}
+  crnaGoraGeo <- read_shape(crnaGoraShp)
+```
+
+```{r, echo=FALSE}
+  crnaGoraGeo@data$NAME_1 <- as.character(crnaGoraGeo@data$NAME_1)
+  crnaGoraGeo <- crnaGoraGeo[order(crnaGoraGeo@data$NAME_1),]
+  population <- population[order(population$Lat.Name),]
+  crnaGoraMap <- append_data(crnaGoraGeo, population, key.shp = "NAME_1", key.data = "Lat.Name")
+```
+
+```{r, echo=FALSE}
+  #Appending Referendum Data
+  crnaGoraMap <- append_data(crnaGoraMap, referendum, key.shp = "NAME_1", key.data = "Municipality")
+  library(Hmisc)
+  crnaGoraMap$VotesCut <- cut2(crnaGoraMap$YesPct, c(45, 50, 55))
+```
+
+
+```{r, echo=FALSE}
+# Scaling data
+minpct <- min(c(crnaGoraMap$SerbsPct, crnaGoraMap$MontenegrinsPct, 
+                crnaGoraMap$MuslimsPct, crnaGoraMap$RestPct))
+
+maxpct <- max(c(crnaGoraMap$SerbsPct, crnaGoraMap$MontenegrinsPct, 
+                crnaGoraMap$MuslimsPct, crnaGoraMap$RestPct))
+```
+
+```{r, echo=FALSE}
+# Preparing Palettes for combined plot
+serbsPalette <- colorNumeric(palette = "Reds", domain = c(minpct, maxpct))
+montenegrinsPalette <- colorNumeric(palette = "Blues", domain = c(minpct, maxpct))
+muslimsPalette <- colorNumeric(palette = "Greens", domain = c(minpct, maxpct))
+restPalette <- colorNumeric(palette = "Oranges", domain = c(minpct, maxpct))
+refPalette <- colorFactor(palette = "RdBu", crnaGoraMap$VotesCut)
+```
+
+```{r, echo=FALSE}
+# Popup for combinded plot
+cgPopup <- paste0("<b> Община: ", crnaGoraMap$Cyr.Name, 
+                  "</b> <br> Население: ", crnaGoraMap$Total,
+                  "<br> Сербов: ", percent(crnaGoraMap$SerbsPct),
+                  "<br> Черногорцев: ", percent(crnaGoraMap$MontenegrinsPct),
+                  "<br> Мусульман: ", percent(crnaGoraMap$MuslimsPct),
+                  "<br> Остальных: ", percent(crnaGoraMap$RestPct),
+                  "<br> <b> За независимость: ", crnaGoraMap$YesPct, "</b>")
+```
+
+```{r}
+# Combined plot
+
+cgMap <- leaflet(crnaGoraMap) %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  
+  addPolygons(stroke = T,
+              weight = 1,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              popup = cgPopup,
+              color = ~ refPalette(crnaGoraMap$VotesCut),
+              group = "Референдум"
+  ) %>%
+  
+  addLegend(position="bottomleft", colors=refPalette(levels(crnaGoraMap$VotesCut)), 
+            labels=c("<45%", "45-50%", "50-55%", ">55%")) %>%
+  
+  addPolygons(stroke = T,
+              weight = 1,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              popup = cgPopup,
+              fillColor = ~ serbsPalette(crnaGoraMap$SerbsPct),
+              color = "white",
+              dashArray = 3,
+              group = "Сербы"
+  ) %>% 
+
+  addPolygons(stroke = T,
+              weight = 1,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              popup = cgPopup,
+              fillColor = ~ montenegrinsPalette(crnaGoraMap$MontenegrinsPct),
+              dashArray = 3,
+              group = "Черногорцы"
+  ) %>% 
+  
+  addPolygons(stroke = T,
+              weight = 1,
+              smoothFactor = 0.2,
+              fillOpacity = 0.75,
+              popup = cgPopup,
+              fillColor = ~ muslimsPalette(crnaGoraMap$MuslimsPct),
+              dashArray = 3,
+              color = "green",
+              group = "Мусульмане"
+  ) %>% 
+  
+  addPolygons(stroke = T,
+              weight = 1,
+              smoothFactor = 0.75,
+              fillOpacity = 0.75,
+              popup = cgPopup,
+              fillColor = ~ restPalette(crnaGoraMap$RestPct),
+              dashArray = 3,
+              color = "Orange",
+              group = "Остальные"
+  ) %>% 
+ 
+  addLayersControl(
+    baseGroups = c("Референдум", "Сербы", "Черногорцы", "Мусульмане", "Остальные"),
+    position = "bottomleft",
+    options = layersControlOptions(collapsed = FALSE)
+  ) 
+
+print(cgMap)
+```
