@@ -6,30 +6,30 @@ output: html_document
 ---
 
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message = FALSE}
   crnaGoraShp <- "data/MNE_adm1.shp"
   populationCsv <- "data/popis-2003.csv"
   referendumCsv <- "data/referendum.csv"
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message = FALSE}
   library(tmap)
   library(tmaptools)
   library(leaflet)
   library(scales)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 # Reading Data files
   population <- read.csv(populationCsv, header = T, sep = ",", as.is = T)
   referendum <- read.csv(referendumCsv, header = T, sep = ",", as.is = T)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
   # Creating new features
   population$MontenegrinsPct <- population$Montenegrins/population$Total
   population$SerbsPct <- population$Serbs/population$Total
@@ -37,18 +37,18 @@ knitr::opts_chunk$set(echo = TRUE)
   population$RestPct <- with(population, (Roma + Croats + Rest + Untold + Regional.identity + Unknown)/Total) 
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
   crnaGoraGeo <- read_shape(crnaGoraShp)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
   crnaGoraGeo@data$NAME_1 <- as.character(crnaGoraGeo@data$NAME_1)
   crnaGoraGeo <- crnaGoraGeo[order(crnaGoraGeo@data$NAME_1),]
   population <- population[order(population$Lat.Name),]
   crnaGoraMap <- append_data(crnaGoraGeo, population, key.shp = "NAME_1", key.data = "Lat.Name")
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
   #Appending Referendum Data
   crnaGoraMap <- append_data(crnaGoraMap, referendum, key.shp = "NAME_1", key.data = "Municipality")
   library(Hmisc)
@@ -56,7 +56,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 # Scaling data
 minpct <- min(c(crnaGoraMap$SerbsPct, crnaGoraMap$MontenegrinsPct, 
                 crnaGoraMap$MuslimsPct, crnaGoraMap$RestPct))
@@ -65,7 +65,7 @@ maxpct <- max(c(crnaGoraMap$SerbsPct, crnaGoraMap$MontenegrinsPct,
                 crnaGoraMap$MuslimsPct, crnaGoraMap$RestPct))
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 # Preparing Palettes for combined plot
 serbsPalette <- colorNumeric(palette = "Reds", domain = c(minpct, maxpct))
 montenegrinsPalette <- colorNumeric(palette = "Blues", domain = c(minpct, maxpct))
@@ -74,7 +74,7 @@ restPalette <- colorNumeric(palette = "Oranges", domain = c(minpct, maxpct))
 refPalette <- colorFactor(palette = "RdBu", crnaGoraMap$VotesCut)
 ```
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, message=FALSE}
 # Popup for combinded plot
 cgPopup <- paste0("<b> Община: ", crnaGoraMap$Cyr.Name, 
                   "</b> <br> Население: ", crnaGoraMap$Total,
@@ -85,7 +85,7 @@ cgPopup <- paste0("<b> Община: ", crnaGoraMap$Cyr.Name,
                   "<br> <b> За независимость: ", crnaGoraMap$YesPct, "</b>")
 ```
 
-```{r}
+```{r, echo=FALSE, message=FALSE}
 # Combined plot
 
 cgMap <- leaflet(crnaGoraMap) %>%
@@ -151,6 +151,8 @@ cgMap <- leaflet(crnaGoraMap) %>%
     position = "bottomleft",
     options = layersControlOptions(collapsed = FALSE)
   ) 
+```
 
-print(cgMap)
+```{r}
+  cgMap
 ```
