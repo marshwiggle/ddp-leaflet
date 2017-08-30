@@ -5,6 +5,15 @@ date: '21 august 2017 г '
 output: html_document
 ---
 
+Montenegro is a beautiful small country, situated in the western part of the Balkan peninsula. It has long and glorious history of more than 10 centuries. The two main ethnic groups inhabiting Montenegro are Montenegrins (44.98% according to 2011 census) and Serbs (28.73%). Both are Southern Slavs and Orthodox Christians, so, taking in account their common history, they are often considered to be the same nation. Yet, their mentality and political views are rather different, as it is shown in the current work. There are also ethnic minorites in the country, such as Bosniaks, Albanians, Croats, Gypsies and so on. 
+
+Till 2006 Montenegro was a part of Yugoslavia. Then on the 21st of May, 2006 Independence Referendum was held and approved by 55.5% of citizens. Though, these results were havily critisized by the opposition, the World Community acknowleged Montenegro independence. 
+
+On the map below you can see the results of the Referendum in each of Montenegro's municipality along with the distribution of the main ethnic groups. The last was taken from the Census of 2003 (it's, certainly, to 2006 but not so much) In order to discover tendencies, I've placed Bosniaks, Albanians and so called Muslims by Nationality into the 'Muslim' group, scince most people of these three nations are adepts of Islam.
+
+Note, that you can click on any municipality to get the detailed info.
+
+The shape file for this map was taken from www.gadm.org. You can find this file in my repository, in the data folder. As you can see, its borders don't match perfectly to the OpenStreetMap, but, unfortunately, I couldn't find a better version.
 
 ```{r setup, include=FALSE, message=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -97,7 +106,7 @@ cgMap <- leaflet(crnaGoraMap) %>%
               fillOpacity = 0.75,
               popup = cgPopup,
               color = ~ refPalette(crnaGoraMap$VotesCut),
-              group = "Референдум"
+              group = "Referendum"
   ) %>%
   
   addLegend(position="bottomleft", colors=refPalette(levels(crnaGoraMap$VotesCut)), 
@@ -111,7 +120,7 @@ cgMap <- leaflet(crnaGoraMap) %>%
               fillColor = ~ serbsPalette(crnaGoraMap$SerbsPct),
               color = "white",
               dashArray = 3,
-              group = "Сербы"
+              group = "Serbs"
   ) %>% 
 
   addPolygons(stroke = T,
@@ -121,7 +130,7 @@ cgMap <- leaflet(crnaGoraMap) %>%
               popup = cgPopup,
               fillColor = ~ montenegrinsPalette(crnaGoraMap$MontenegrinsPct),
               dashArray = 3,
-              group = "Черногорцы"
+              group = "Montenegrins"
   ) %>% 
   
   addPolygons(stroke = T,
@@ -132,7 +141,7 @@ cgMap <- leaflet(crnaGoraMap) %>%
               fillColor = ~ muslimsPalette(crnaGoraMap$MuslimsPct),
               dashArray = 3,
               color = "green",
-              group = "Мусульмане"
+              group = "Muslims"
   ) %>% 
   
   addPolygons(stroke = T,
@@ -143,16 +152,16 @@ cgMap <- leaflet(crnaGoraMap) %>%
               fillColor = ~ restPalette(crnaGoraMap$RestPct),
               dashArray = 3,
               color = "Orange",
-              group = "Остальные"
+              group = "Rest"
   ) %>% 
  
   addLayersControl(
-    baseGroups = c("Референдум", "Сербы", "Черногорцы", "Мусульмане", "Остальные"),
+    baseGroups = c("Referendum", "Serbs", "Montenegrins", "Muslims", "Rest"),
     position = "bottomleft",
     options = layersControlOptions(collapsed = FALSE)
   ) 
 ```
 
-```{r}
+```{r, echo = FALSE}
   cgMap
 ```
