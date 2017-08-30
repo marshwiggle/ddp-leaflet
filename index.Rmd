@@ -9,7 +9,7 @@ Montenegro is a beautiful small country, situated in the western part of the Bal
 
 Till 2006 Montenegro was a part of Yugoslavia. Then on the 21st of May, 2006 Independence Referendum was held and approved by 55.5% of citizens. Though, these results were havily critisized by the opposition, the World Community acknowleged Montenegro independence. 
 
-On the map below you can see the results of the Referendum in each of Montenegro's municipality along with the distribution of the main ethnic groups. The last was taken from the Census of 2003 (it's, certainly, to 2006 but not so much) In order to discover tendencies, I've placed Bosniaks, Albanians and so called Muslims by Nationality into the 'Muslim' group, scince most people of these three nations are adepts of Islam.
+On the map below you can see the results of the Referendum in each of Montenegro's municipality along with the distribution of the main ethnic groups. The last was taken from the Census of 2003 (it's, certainly, changed from 2003 to 2006 but not so much) In order to discover tendencies, I've placed Bosniaks, Albanians and so called Muslims by Nationality into the 'Muslim' group, scince most people of these three nations are adepts of Islam.
 
 Note, that you can click on any municipality to get the detailed info.
 
@@ -85,13 +85,13 @@ refPalette <- colorFactor(palette = "RdBu", crnaGoraMap$VotesCut)
 
 ```{r, echo=FALSE, message=FALSE}
 # Popup for combinded plot
-cgPopup <- paste0("<b> Община: ", crnaGoraMap$Cyr.Name, 
-                  "</b> <br> Население: ", crnaGoraMap$Total,
-                  "<br> Сербов: ", percent(crnaGoraMap$SerbsPct),
-                  "<br> Черногорцев: ", percent(crnaGoraMap$MontenegrinsPct),
-                  "<br> Мусульман: ", percent(crnaGoraMap$MuslimsPct),
-                  "<br> Остальных: ", percent(crnaGoraMap$RestPct),
-                  "<br> <b> За независимость: ", crnaGoraMap$YesPct, "</b>")
+cgPopup <- paste0("<b> Municipality: ", crnaGoraMap$NAME_1, 
+                  "</b> <br> Population: ", crnaGoraMap$Total,
+                  "<br> Serbs: ", percent(crnaGoraMap$SerbsPct),
+                  "<br> Montenegrins: ", percent(crnaGoraMap$MontenegrinsPct),
+                  "<br> Muslims: ", percent(crnaGoraMap$MuslimsPct),
+                  "<br> Rest: ", percent(crnaGoraMap$RestPct),
+                  "<br> <b> For Independence: ", crnaGoraMap$YesPct, "%</b>")
 ```
 
 ```{r, echo=FALSE, message=FALSE}
